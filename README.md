@@ -8,11 +8,11 @@ Only Java. No external library used.
 Open a command prompt window and go to the directory where you downloaded the Ying Yang:
 
 ```
-javac Interface.java
+javac *.java
 ```
 Press enter and then:
 ```
-java Interface
+java StartMenu
 ```
 # Contributing and Credits
 
