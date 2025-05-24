@@ -14,6 +14,7 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
+    private Timer timer;
 
     public Core(int rows, int columns, int tileSize) {
         
@@ -50,13 +51,14 @@ class Core extends JPanel {
         balls.add(new Ball(xb, yb, bounds, Color.BLACK, vx, vy));
 
         // Animation part
-        Timer timer = new Timer(10, new ActionListener() {
+        timer = new Timer(10, new ActionListener() {
             
             @Override
             public void actionPerformed(ActionEvent e) {
                 
                 moveBalls();
                 checkCollision();
+                checkWinner();
                 repaint();
             }
 
@@ -116,6 +118,36 @@ class Core extends JPanel {
                     
                 }
             }
+        }
+    }
+
+    private void checkWinner() {
+        if (tiles.isEmpty()) {
+            return;
+        }
+
+        Color first = tiles.get(0).getColor();
+        for (ColoredShape tile : tiles) {
+            if (!tile.getColor().equals(first)) {
+                return;
+            }
+        }
+
+        timer.stop();
+        String winner = first.equals(Color.WHITE) ? "White" : "Black";
+        int option = JOptionPane.showConfirmDialog(this,
+                winner + " wins! Restart?",
+                "Game Over",
+                JOptionPane.YES_NO_OPTION);
+
+        if (option == JOptionPane.YES_OPTION) {
+            Window window = SwingUtilities.getWindowAncestor(this);
+            if (window != null) {
+                window.dispose();
+            }
+            new Interface();
+        } else if (option == JOptionPane.NO_OPTION) {
+            System.exit(0);
         }
     }
 
