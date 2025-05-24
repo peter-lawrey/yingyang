@@ -2,7 +2,8 @@
 The eternal battle of black and white, constructed with Java. 
 
 # Dependencies
-Only Java. No external library used.
+Only Java. No external library used. Audio clips are stored as Base64 text
+files under the `resources` folder and decoded at runtime.
 
 # Usage
 Open a command prompt window and go to the directory where you downloaded the Ying Yang:
