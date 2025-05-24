@@ -14,8 +14,9 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
+    private ArrayList<Obstacle> obstacles;
 
-    public Core(int rows, int columns, int tileSize) {
+    public Core(int rows, int columns, int tileSize, int[][] obstacleData) {
         
         this.rows = rows;
         this.columns = columns;
@@ -23,6 +24,7 @@ class Core extends JPanel {
         this.bounds = tileSize / 2;
         this.tiles = new ArrayList<>();
         this.balls = new ArrayList<>();
+        this.obstacles = new ArrayList<>();
 
         //Randomizing starting point and speed values
         xw = (int) Math.floor(Math.random() *(((Interface.frameWidth / 2) - tileSize*2) - tileSize*2 + 1) + tileSize*2);
@@ -43,6 +45,16 @@ class Core extends JPanel {
                 tiles.add(new ColoredShape(rect, color));
 
             }
+        }
+
+        // Creating obstacles based on level data
+        for (int[] ob : obstacleData) {
+            int x = ob[0] * tileSize;
+            int y = ob[1] * tileSize;
+            int w = ob[2] * tileSize;
+            int h = ob[3] * tileSize;
+            Shape rect = new Rectangle(x, y, w, h);
+            obstacles.add(new Obstacle(rect));
         }
 
         // Creating balls
@@ -116,6 +128,26 @@ class Core extends JPanel {
                     
                 }
             }
+
+            // Check collision with obstacles
+            for (Obstacle obs : obstacles) {
+                if (ball.getShape().getBounds().intersects(obs.getShape().getBounds())) {
+
+                    double obsCenterX = obs.getShape().getBounds2D().getCenterX();
+                    double obsCenterY = obs.getShape().getBounds2D().getCenterY();
+                    double ballCenterX = ball.getShape().getCenterX();
+                    double ballCenterY = ball.getShape().getCenterY();
+
+                    double angle = Math.atan2(ballCenterY - obsCenterY, ballCenterX - obsCenterX);
+
+                    if (Math.abs(angle) < Math.PI / 4 || Math.abs(angle) > 3 * Math.PI / 4) {
+                        ball.setVx(-ball.getVx());
+                    } else {
+                        ball.setVy(-ball.getVy());
+                    }
+
+                }
+            }
         }
     }
 
@@ -128,6 +160,12 @@ class Core extends JPanel {
         for (ColoredShape tile : tiles) {
             g2d.setColor(tile.getColor());
             g2d.fill(tile.getShape());
+        }
+
+        // Drawing obstacles
+        g2d.setColor(Color.GRAY);
+        for (Obstacle obs : obstacles) {
+            g2d.fill(obs.getShape());
         }
 
         // Drawing balls
