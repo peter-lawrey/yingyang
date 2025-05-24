@@ -109,3 +109,44 @@ class Ball {
     }
 
 }
+
+class Particle {
+
+    private Ellipse2D.Double shape;
+    private Color color;
+    private double vx;
+    private double vy;
+    private float life = 1.0f;
+
+    public Particle(double x, double y, double size, Color color, double vx, double vy) {
+
+        this.shape = new Ellipse2D.Double(x, y, size, size);
+        this.color = color;
+        this.vx = vx;
+        this.vy = vy;
+
+    }
+
+    public Ellipse2D.Double getShape() {
+        return shape;
+    }
+
+    public Color getColor() {
+        return color;
+    }
+
+    public float getLife() {
+        return life;
+    }
+
+    public void update() {
+        shape.x += vx;
+        shape.y += vy;
+        life -= 0.05f;
+    }
+
+    public boolean isDead() {
+        return life <= 0f;
+    }
+
+}

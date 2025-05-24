@@ -3,6 +3,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.lang.Math;
+import java.awt.geom.Rectangle2D;
 
 class Core extends JPanel {
 
@@ -14,6 +15,7 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
+    private ArrayList<Particle> particles;
 
     public Core(int rows, int columns, int tileSize) {
         
@@ -23,6 +25,7 @@ class Core extends JPanel {
         this.bounds = tileSize / 2;
         this.tiles = new ArrayList<>();
         this.balls = new ArrayList<>();
+        this.particles = new ArrayList<>();
 
         //Randomizing starting point and speed values
         xw = (int) Math.floor(Math.random() *(((Interface.frameWidth / 2) - tileSize*2) - tileSize*2 + 1) + tileSize*2);
@@ -54,9 +57,10 @@ class Core extends JPanel {
             
             @Override
             public void actionPerformed(ActionEvent e) {
-                
+
                 moveBalls();
                 checkCollision();
+                updateParticles();
                 repaint();
             }
 
@@ -83,6 +87,28 @@ class Core extends JPanel {
         }
     }
 
+    private void spawnParticles(Rectangle2D bounds, Color color) {
+        double centerX = bounds.getCenterX();
+        double centerY = bounds.getCenterY();
+        for (int i = 0; i < 8; i++) {
+            double size = tileSize / 6.0;
+            double vx = (Math.random() - 0.5) * 4;
+            double vy = (Math.random() - 0.5) * 4;
+            particles.add(new Particle(centerX, centerY, size, color, vx, vy));
+        }
+    }
+
+    private void updateParticles() {
+        ArrayList<Particle> remove = new ArrayList<>();
+        for (Particle p : particles) {
+            p.update();
+            if (p.isDead()) {
+                remove.add(p);
+            }
+        }
+        particles.removeAll(remove);
+    }
+
     private void checkCollision() {
         
         for (Ball ball : balls) {
@@ -92,8 +118,9 @@ class Core extends JPanel {
                 if (ball.getShape().getBounds().intersects(tile.getShape().getBounds())) {
                     
                     if (ball.getColor().equals(tile.getColor())) {
-                        
+
                         tile.setColor(ball.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE);
+                        spawnParticles(tile.getShape().getBounds2D(), ball.getColor());
                         
                         // Calculating the angle of incidence
                         double tileCenterX = tile.getShape().getBounds2D().getCenterX();
@@ -134,6 +161,13 @@ class Core extends JPanel {
         for (Ball ball : balls) {
             g2d.setColor(ball.getColor());
             g2d.fill(ball.getShape());
+        }
+
+        // Drawing particles
+        for (Particle p : particles) {
+            g2d.setColor(new Color(p.getColor().getRed(), p.getColor().getGreen(),
+                    p.getColor().getBlue(), (int) (255 * p.getLife())));
+            g2d.fill(p.getShape());
         }
     }
 
