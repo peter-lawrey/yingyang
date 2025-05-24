@@ -1,6 +1,8 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Interface extends JFrame {
 
@@ -53,19 +55,34 @@ class ColoredShape {
 }
 
 class Ball {
-    
+
     private Ellipse2D.Double shape;
     private Color color;
     private int vx;
     private int vy;
+    private LinkedList<Point> trail = new LinkedList<>();
+    private static final int TRAIL_SIZE = 10;
 
     public Ball(int x, int y, int diameter, Color color, int vx, int vy) {
-        
+
         this.shape = new Ellipse2D.Double(x, y, diameter, diameter);
         this.color = color;
         this.vx = vx;
         this.vy = vy;
 
+        addPosition(x, y);
+
+    }
+
+    public void addPosition(int x, int y) {
+        trail.add(new Point(x, y));
+        if (trail.size() > TRAIL_SIZE) {
+            trail.removeFirst();
+        }
+    }
+
+    public List<Point> getTrail() {
+        return trail;
     }
 
     public Ellipse2D.Double getShape() {

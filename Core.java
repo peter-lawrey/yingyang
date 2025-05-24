@@ -1,6 +1,7 @@
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.lang.Math;
 
@@ -68,10 +69,12 @@ class Core extends JPanel {
     //Moving balls
     private void moveBalls() {
         for (Ball ball : balls) {
-            
+
             ball.setX(ball.getX() + ball.getVx());
             ball.setY(ball.getY() + ball.getVy());
-    
+
+            ball.addPosition(ball.getX(), ball.getY());
+
             // Bouncing back from walls
             if (ball.getX() > getWidth() - ball.getShape().width || ball.getX() < 0) {
                 ball.setVx(-ball.getVx());
@@ -130,9 +133,17 @@ class Core extends JPanel {
             g2d.fill(tile.getShape());
         }
 
-        // Drawing balls
+        // Drawing balls with trails
         for (Ball ball : balls) {
-            g2d.setColor(ball.getColor());
+            Color ballColor = ball.getColor();
+            Color translucent = new Color(ballColor.getRed(), ballColor.getGreen(), ballColor.getBlue(), 80);
+
+            for (Point p : ball.getTrail()) {
+                g2d.setColor(translucent);
+                g2d.fill(new Ellipse2D.Double(p.x, p.y, ball.getShape().width, ball.getShape().height));
+            }
+
+            g2d.setColor(ballColor);
             g2d.fill(ball.getShape());
         }
     }
