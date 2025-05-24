@@ -12,7 +12,7 @@ public class Interface extends JFrame {
 
         setSize(frameWidth, frameHeight);
         setLocationRelativeTo(null);
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
         setLayout(new BorderLayout());
         setTitle("Ying Yang");
         add(new Core(frameHeight / tileSize, frameWidth / tileSize, tileSize));

@@ -15,6 +15,12 @@ class Core extends JPanel {
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
 
+    private Timer animationTimer;
+    private Timer gameTimer;
+    private int whiteScore = 0;
+    private int blackScore = 0;
+    private static final int GAME_DURATION = 30000; // 30 seconds
+
     public Core(int rows, int columns, int tileSize) {
         
         this.rows = rows;
@@ -50,7 +56,7 @@ class Core extends JPanel {
         balls.add(new Ball(xb, yb, bounds, Color.BLACK, vx, vy));
 
         // Animation part
-        Timer timer = new Timer(10, new ActionListener() {
+        animationTimer = new Timer(10, new ActionListener() {
             
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -62,7 +68,16 @@ class Core extends JPanel {
 
         });
 
-        timer.start();
+        animationTimer.start();
+
+        gameTimer = new Timer(GAME_DURATION, new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                endGame();
+            }
+        });
+        gameTimer.setRepeats(false);
+        gameTimer.start();
     }
 
     //Moving balls
@@ -92,7 +107,12 @@ class Core extends JPanel {
                 if (ball.getShape().getBounds().intersects(tile.getShape().getBounds())) {
                     
                     if (ball.getColor().equals(tile.getColor())) {
-                        
+
+                        if (ball.getColor().equals(Color.WHITE)) {
+                            whiteScore++;
+                        } else {
+                            blackScore++;
+                        }
                         tile.setColor(ball.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE);
                         
                         // Calculating the angle of incidence
@@ -117,6 +137,36 @@ class Core extends JPanel {
                 }
             }
         }
+    }
+
+    private void endGame() {
+        animationTimer.stop();
+        gameTimer.stop();
+
+        int whiteTiles = 0;
+        int blackTiles = 0;
+        for (ColoredShape tile : tiles) {
+            if (tile.getColor().equals(Color.WHITE)) {
+                whiteTiles++;
+            } else {
+                blackTiles++;
+            }
+        }
+
+        String winner;
+        if (whiteTiles > blackTiles) {
+            winner = "White";
+        } else if (blackTiles > whiteTiles) {
+            winner = "Black";
+        } else {
+            winner = "Draw";
+        }
+
+        ScoreManager.addScore(winner, whiteTiles, blackTiles);
+
+        JOptionPane.showMessageDialog(this,
+                "Game Over! Winner: " + winner + "\nWhite: " + whiteTiles + " Black: " + blackTiles);
+        SwingUtilities.getWindowAncestor(this).dispose();
     }
 
     public void paintComponent(Graphics g) {
