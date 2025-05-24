@@ -7,6 +7,7 @@ public class Interface extends JFrame {
     protected static int frameHeight = 637;
     protected static int frameWidth = 637;
     private int tileSize = 30;
+    private JLabel scoreLabel;
 
     public Interface() {
 
@@ -15,7 +16,9 @@ public class Interface extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setTitle("Ying Yang");
-        add(new Core(frameHeight / tileSize, frameWidth / tileSize, tileSize));
+        scoreLabel = new JLabel("White: 0 Black: 0", SwingConstants.CENTER);
+        add(scoreLabel, BorderLayout.NORTH);
+        add(new Core(frameHeight / tileSize, frameWidth / tileSize, tileSize, scoreLabel));
         setVisible(true);
 
     }

@@ -14,15 +14,21 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
+    private int whiteFlips;
+    private int blackFlips;
+    private JLabel scoreLabel;
 
-    public Core(int rows, int columns, int tileSize) {
-        
+    public Core(int rows, int columns, int tileSize, JLabel scoreLabel) {
+
         this.rows = rows;
         this.columns = columns;
         this.tileSize = tileSize;
         this.bounds = tileSize / 2;
         this.tiles = new ArrayList<>();
         this.balls = new ArrayList<>();
+        this.scoreLabel = scoreLabel;
+        this.whiteFlips = 0;
+        this.blackFlips = 0;
 
         //Randomizing starting point and speed values
         xw = (int) Math.floor(Math.random() *(((Interface.frameWidth / 2) - tileSize*2) - tileSize*2 + 1) + tileSize*2);
@@ -63,6 +69,7 @@ class Core extends JPanel {
         });
 
         timer.start();
+        updateScoreLabel();
     }
 
     //Moving balls
@@ -92,8 +99,14 @@ class Core extends JPanel {
                 if (ball.getShape().getBounds().intersects(tile.getShape().getBounds())) {
                     
                     if (ball.getColor().equals(tile.getColor())) {
-                        
+
                         tile.setColor(ball.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE);
+                        if (ball.getColor().equals(Color.WHITE)) {
+                            whiteFlips++;
+                        } else {
+                            blackFlips++;
+                        }
+                        updateScoreLabel();
                         
                         // Calculating the angle of incidence
                         double tileCenterX = tile.getShape().getBounds2D().getCenterX();
@@ -134,6 +147,12 @@ class Core extends JPanel {
         for (Ball ball : balls) {
             g2d.setColor(ball.getColor());
             g2d.fill(ball.getShape());
+        }
+    }
+
+    private void updateScoreLabel() {
+        if (scoreLabel != null) {
+            scoreLabel.setText("White: " + whiteFlips + " Black: " + blackFlips);
         }
     }
 
