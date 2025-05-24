@@ -2,26 +2,38 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
 
+// Theme selection and start menu
+
 public class Interface extends JFrame {
 
     protected static int frameHeight = 637;
     protected static int frameWidth = 637;
     private int tileSize = 30;
 
-    public Interface() {
+    public Interface(Theme theme) {
 
         setSize(frameWidth, frameHeight);
         setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setTitle("Ying Yang");
-        add(new Core(frameHeight / tileSize, frameWidth / tileSize, tileSize));
+        add(new Core(frameHeight / tileSize, frameWidth / tileSize, tileSize, theme));
         setVisible(true);
 
     }
 
     public static void main(String[] args) {
-        new Interface();
+        String[] options = {"Classic", "Pastel", "Neon"};
+        Theme[] themes = {Theme.CLASSIC, Theme.PASTEL, Theme.NEON};
+        int choice = JOptionPane.showOptionDialog(null, "Choose a theme", "Start Menu",
+                JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+
+        Theme selected = Theme.CLASSIC;
+        if (choice >= 0 && choice < themes.length) {
+            selected = themes[choice];
+        }
+
+        new Interface(selected);
     }
 
 }
