@@ -1,3 +1,4 @@
+import javax.sound.sampled.Clip;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.geom.Ellipse2D;
@@ -58,14 +59,14 @@ class Ball {
     private Color color;
     private int vx;
     private int vy;
+    private Clip clip;
 
-    public Ball(int x, int y, int diameter, Color color, int vx, int vy) {
-        
+    public Ball(int x, int y, int diameter, Color color, int vx, int vy, Clip clip) {
         this.shape = new Ellipse2D.Double(x, y, diameter, diameter);
         this.color = color;
         this.vx = vx;
         this.vy = vy;
-
+        this.clip = clip;
     }
 
     public Ellipse2D.Double getShape() {
@@ -108,4 +109,7 @@ class Ball {
         shape.y = y;
     }
 
+    public Clip clip() {
+        return clip;
+    }
 }

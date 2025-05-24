@@ -1,11 +1,10 @@
+import javax.sound.sampled.*;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.lang.Math;
-import javax.sound.sampled.AudioSystem;
-import javax.sound.sampled.AudioInputStream;
-import javax.sound.sampled.Clip;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -21,7 +20,7 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
-    private Clip hitClip;
+    private Clip hitClip, beepClip;
 
     public Core(int rows, int columns, int tileSize) {
         
@@ -33,12 +32,9 @@ class Core extends JPanel {
         this.balls = new ArrayList<>();
 
         try {
-            String data = new String(Files.readAllBytes(Paths.get("resources/hit.txt")));
-            byte[] audioBytes = Base64.getDecoder().decode(data);
-            AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(audioBytes));
+            this.hitClip = getClip("resources/hit.txt");
+            this.beepClip = getClip("resources/beep.txt");
 
-            hitClip = AudioSystem.getClip();
-            hitClip.open(ais);
         } catch (Exception e) {
             hitClip = null;
             e.printStackTrace();
@@ -66,8 +62,8 @@ class Core extends JPanel {
         }
 
         // Creating balls
-        balls.add(new Ball(xw, yw, bounds, Color.WHITE, vx, vy));
-        balls.add(new Ball(xb, yb, bounds, Color.BLACK, vx, vy));
+        balls.add(new Ball(xw, yw, bounds, Color.WHITE, vx, vy, hitClip));
+        balls.add(new Ball(xb, yb, bounds, Color.BLACK, vx, vy, beepClip));
 
         // Animation part
         Timer timer = new Timer(10, new ActionListener() {
@@ -83,6 +79,18 @@ class Core extends JPanel {
         });
 
         timer.start();
+    }
+
+    private static Clip getClip(String first) throws IOException, UnsupportedAudioFileException, LineUnavailableException {
+        byte[] bytes = Files.readAllBytes(Paths.get(first));
+        byte[] audioBytes = Base64.getMimeDecoder().decode(bytes);
+        AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(audioBytes));
+
+        Clip hitClip = AudioSystem.getClip();
+        hitClip.open(ais);
+        FloatControl gainControl = (FloatControl) hitClip.getControl(FloatControl.Type.MASTER_GAIN);
+        gainControl.setValue(-20.0f); // Reduce volume by 20 decibels
+        return hitClip;
     }
 
     //Moving balls
@@ -111,10 +119,9 @@ class Core extends JPanel {
 
                 if (ball.getShape().getBounds().intersects(tile.getShape().getBounds())) {
 
-                    playHitSound();
-
                     if (ball.getColor().equals(tile.getColor())) {
-                        
+                        playHitSound(ball.clip());
+
                         tile.setColor(ball.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE);
                         
                         // Calculating the angle of incidence
@@ -141,16 +148,16 @@ class Core extends JPanel {
         }
     }
 
-    private void playHitSound() {
-        if (hitClip == null) {
+    private void playHitSound(Clip clip) {
+        if (clip == null) {
             return;
         }
 
-        if (hitClip.isRunning()) {
-            hitClip.stop();
+        if (clip.isRunning()) {
+            clip.stop();
         }
-        hitClip.setFramePosition(0);
-        hitClip.start();
+        clip.setFramePosition(0);
+        clip.start();
     }
 
     public void paintComponent(Graphics g) {
