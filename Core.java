@@ -4,6 +4,8 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.lang.Math;
 
+// Theme support for alternate color palettes
+
 class Core extends JPanel {
 
     //Adjusting the starting points of balls and other variables
@@ -14,12 +16,14 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
+    private Theme theme;
 
-    public Core(int rows, int columns, int tileSize) {
-        
+    public Core(int rows, int columns, int tileSize, Theme theme) {
+
         this.rows = rows;
         this.columns = columns;
         this.tileSize = tileSize;
+        this.theme = theme;
         this.bounds = tileSize / 2;
         this.tiles = new ArrayList<>();
         this.balls = new ArrayList<>();
@@ -35,19 +39,19 @@ class Core extends JPanel {
         // Creating tiles
         for (int i = 0; i < rows; i++) {
             for (int j = 0; j < columns; j++) {
-                
+
                 int x = j * tileSize;
                 int y = i * tileSize;
                 Shape rect = new Rectangle(x, y, tileSize, tileSize);
-                Color color = (j < columns / 2) ? Color.BLACK : Color.WHITE;
+                Color color = (j < columns / 2) ? theme.getColorA() : theme.getColorB();
                 tiles.add(new ColoredShape(rect, color));
 
             }
         }
 
-        // Creating balls
-        balls.add(new Ball(xw, yw, bounds, Color.WHITE, vx, vy));
-        balls.add(new Ball(xb, yb, bounds, Color.BLACK, vx, vy));
+        // Creating balls (opposite color of starting tiles)
+        balls.add(new Ball(xw, yw, bounds, theme.getColorB(), vx, vy));
+        balls.add(new Ball(xb, yb, bounds, theme.getColorA(), vx, vy));
 
         // Animation part
         Timer timer = new Timer(10, new ActionListener() {
@@ -92,8 +96,9 @@ class Core extends JPanel {
                 if (ball.getShape().getBounds().intersects(tile.getShape().getBounds())) {
                     
                     if (ball.getColor().equals(tile.getColor())) {
-                        
-                        tile.setColor(ball.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE);
+
+                        Color newColor = ball.getColor().equals(theme.getColorA()) ? theme.getColorB() : theme.getColorA();
+                        tile.setColor(newColor);
                         
                         // Calculating the angle of incidence
                         double tileCenterX = tile.getShape().getBounds2D().getCenterX();
