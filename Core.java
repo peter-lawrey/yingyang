@@ -3,6 +3,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.lang.Math;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.Clip;
+import java.io.ByteArrayInputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.Base64;
 
 class Core extends JPanel {
 
@@ -14,6 +21,7 @@ class Core extends JPanel {
     private int rows, columns, tileSize;
     private ArrayList<ColoredShape> tiles;
     private ArrayList<Ball> balls;
+    private Clip hitClip;
 
     public Core(int rows, int columns, int tileSize) {
         
@@ -23,6 +31,17 @@ class Core extends JPanel {
         this.bounds = tileSize / 2;
         this.tiles = new ArrayList<>();
         this.balls = new ArrayList<>();
+
+        try {
+            String data = new String(Files.readAllBytes(Paths.get("resources/hit.txt")));
+            byte[] audioBytes = Base64.getDecoder().decode(data);
+            AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(audioBytes));
+            hitClip = AudioSystem.getClip();
+            hitClip.open(ais);
+        } catch (Exception e) {
+            hitClip = null;
+            e.printStackTrace();
+        }
 
         //Randomizing starting point and speed values
         xw = (int) Math.floor(Math.random() *(((Interface.frameWidth / 2) - tileSize*2) - tileSize*2 + 1) + tileSize*2);
@@ -84,13 +103,15 @@ class Core extends JPanel {
     }
 
     private void checkCollision() {
-        
+
         for (Ball ball : balls) {
-            
+
             for (ColoredShape tile : tiles) {
-                
+
                 if (ball.getShape().getBounds().intersects(tile.getShape().getBounds())) {
-                    
+
+                    playHitSound();
+
                     if (ball.getColor().equals(tile.getColor())) {
                         
                         tile.setColor(ball.getColor().equals(Color.WHITE) ? Color.BLACK : Color.WHITE);
@@ -117,6 +138,18 @@ class Core extends JPanel {
                 }
             }
         }
+    }
+
+    private void playHitSound() {
+        if (hitClip == null) {
+            return;
+        }
+
+        if (hitClip.isRunning()) {
+            hitClip.stop();
+        }
+        hitClip.setFramePosition(0);
+        hitClip.start();
     }
 
     public void paintComponent(Graphics g) {
