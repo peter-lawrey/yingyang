@@ -36,6 +36,7 @@ class Core extends JPanel {
             String data = new String(Files.readAllBytes(Paths.get("resources/hit.txt")));
             byte[] audioBytes = Base64.getDecoder().decode(data);
             AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(audioBytes));
+
             hitClip = AudioSystem.getClip();
             hitClip.open(ais);
         } catch (Exception e) {
