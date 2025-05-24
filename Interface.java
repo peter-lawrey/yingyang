@@ -4,24 +4,28 @@ import java.awt.geom.Ellipse2D;
 
 public class Interface extends JFrame {
 
-    protected static int frameHeight = 637;
-    protected static int frameWidth = 637;
-    private int tileSize = 30;
+    protected static int frameHeight;
+    protected static int frameWidth;
+    private int tileSize;
 
-    public Interface() {
+    public Interface(int rows, int columns, int tileSize) {
 
-        setSize(frameWidth, frameHeight);
-        setLocationRelativeTo(null);
+        this.tileSize = tileSize;
+        frameHeight = rows * tileSize;
+        frameWidth = columns * tileSize;
+
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
         setTitle("Ying Yang");
-        add(new Core(frameHeight / tileSize, frameWidth / tileSize, tileSize));
+        add(new Core(rows, columns, tileSize));
+        pack();
+        setLocationRelativeTo(null);
         setVisible(true);
 
     }
 
     public static void main(String[] args) {
-        new Interface();
+        new StartMenu();
     }
 
 }
