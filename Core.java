@@ -33,10 +33,10 @@ class Core extends JPanel {
         this.balls = new ArrayList<>();
 
         try {
-            byte[] encoded = Files.readAllBytes(Paths.get("resources/hit.txt"));
-            byte[] audioBytes = Base64.getDecoder().decode(new String(encoded));
-            ByteArrayInputStream bais = new ByteArrayInputStream(audioBytes);
-            AudioInputStream ais = AudioSystem.getAudioInputStream(bais);
+            String data = new String(Files.readAllBytes(Paths.get("resources/hit.txt")));
+            byte[] audioBytes = Base64.getDecoder().decode(data);
+            AudioInputStream ais = AudioSystem.getAudioInputStream(new ByteArrayInputStream(audioBytes));
+
             hitClip = AudioSystem.getClip();
             hitClip.open(ais);
         } catch (Exception e) {
